@@ -1,0 +1,111 @@
+openapi: 3.0.1
+info:
+  title: Users Microservice API
+  description: API for user management in Plaza de Comidas system
+  version: 1.0.0
+  contact:
+    name: Mateo Castro
+    email: mateocastro1297@gmail.com
+
+servers:
+  - url: http://localhost:8081/api/v1
+    description: Local server
+
+tags:
+  - name: Authentication
+    description: Authentication endpoints
+  - name: Admin
+    description: Admin operations
+  - name: Owners
+    description: Owner operations
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and return JWT token
+      operationId: authenticateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: []
+
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "admin@plazacomidas.com"
+        password:
+          type: string
+          format: password
+          example: "Admin123!"
+
+    JwtResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token
+        type:
+          type: string
+          default: "Bearer"
+        id:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Enter your JWT token in the format: Bearer <token>"

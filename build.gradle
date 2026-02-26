@@ -1,7 +1,49 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.3'
+	id 'org.springframework.boot' version '3.5.11'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.10.0'
+}
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/src/main/resources/openapi/users-api.yaml"
+	outputDir = "$buildDir/generated"
+	apiPackage = "com.pragma.usuarios.infrastructure.adapter.in.rest.api"
+	modelPackage = "com.pragma.usuarios.application.dto"
+	invokerPackage = "com.pragma.usuarios.infrastructure"
+
+	configOptions = [
+			dateLibrary: "java17",
+			java17: "true",
+			useSpringBoot3: "true",
+			useJakartaEe: "true",
+			useSwaggerUI: "true",
+			skipDefaultInterface: "false",
+			interfaceOnly: "true",
+			delegatePattern: "true",
+			useTags: "true",
+			library: "spring-boot",
+			serializableModel: "true",
+			jakarta: "true"
+	]
+
+	globalProperties = [
+			modelDocs: "false",
+			apis: "",
+			models: "",
+			supportingFiles: "ApiUtil.java"
+	]
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+
+sourceSets {
+	main {
+		java {
+			srcDir "${buildDir}/generated/src/main/java"
+		}
+	}
 }
 
 group = 'com.pragma'
@@ -25,21 +67,50 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-flyway'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.flywaydb:flyway-database-postgresql'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-common:2.3.0'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
 	implementation 'org.flywaydb:flyway-core'
+	runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	runtimeOnly 'org.postgresql:postgresql'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:testcontainers:1.19.3'
+	testImplementation 'org.testcontainers:postgresql:1.19.3'
+	testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs = [
+			'-Amapstruct.suppressGeneratorTimestamp=true',
+			'-Amapstruct.suppressGeneratorVersionInfoComment=true',
+			'-Amapstruct.verbose=true'
+	]
 }
