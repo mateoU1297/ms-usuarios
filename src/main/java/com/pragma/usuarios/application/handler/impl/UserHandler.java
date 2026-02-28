@@ -9,6 +9,7 @@ import com.pragma.usuarios.application.mapper.IJwtResponseMapper;
 import com.pragma.usuarios.application.mapper.IOwnerResponseMapper;
 import com.pragma.usuarios.domain.api.IAuthenticationServicePort;
 import com.pragma.usuarios.domain.api.IJwtServicePort;
+import com.pragma.usuarios.domain.api.IUserRoleServicePort;
 import com.pragma.usuarios.domain.api.IUserServicePort;
 import com.pragma.usuarios.domain.model.User;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class UserHandler implements IUserHandler {
 
     private final IJwtServicePort jwtServicePort;
     private final IUserServicePort userServicePort;
+    private final IUserRoleServicePort userRoleServicePort;
     private final IAuthenticationServicePort authenticationServicePort;
 
     public JwtResponse authenticate(LoginRequest loginRequest) {
@@ -41,6 +43,7 @@ public class UserHandler implements IUserHandler {
     }
 
     public OwnerResponse createOwner(OwnerRequest ownerRequest) {
+//        userRoleServicePort.save()
         User entity = ownerResponseMapper.toModel(ownerRequest);
         return ownerResponseMapper.toResponse(userServicePort.save(entity));
     }

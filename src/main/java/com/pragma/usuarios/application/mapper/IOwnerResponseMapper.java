@@ -18,7 +18,7 @@ public interface IOwnerResponseMapper {
     @Mapping(target = "roles", source = "roles", qualifiedByName = "mapRolesToNames")
     OwnerResponse toResponse(User user);
 
-    User toModel(OwnerRequest  ownerRequest);
+    User toModel(OwnerRequest ownerRequest);
 
     @Named("mapRolesToNames")
     default List<String> mapRolesToNames(Set<Role> roles) {

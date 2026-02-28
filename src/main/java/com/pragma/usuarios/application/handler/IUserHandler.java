@@ -8,5 +8,6 @@ import com.pragma.usuarios.application.dto.OwnerResponse;
 public interface IUserHandler {
 
     JwtResponse authenticate(LoginRequest loginRequest);
+
     OwnerResponse createOwner(OwnerRequest ownerRequest);
 }
