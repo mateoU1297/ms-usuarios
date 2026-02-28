@@ -25,7 +25,9 @@ openApiGenerate {
 			useTags: "true",
 			library: "spring-boot",
 			serializableModel: "true",
-			jakarta: "true"
+			jakarta: "true",
+			useBeanValidation: "true",
+			performBeanValidation: "true"
 	]
 
 	globalProperties = [

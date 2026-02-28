@@ -4,7 +4,7 @@ import com.pragma.usuarios.domain.model.Role;
 import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.infrastructure.out.jpa.entity.RolEntity;
 import com.pragma.usuarios.infrastructure.out.jpa.entity.UserEntity;
-import com.pragma.usuarios.infrastructure.out.jpa.entity.UserRolEntity;
+import com.pragma.usuarios.infrastructure.out.jpa.entity.UserRoleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -27,12 +27,12 @@ public interface IUserEntityMapper {
     UserEntity toEntity(User user);
 
     @Named("mapUserRolesToRoles")
-    default Set<Role> mapUserRolesToRoles(Set<UserRolEntity> userRoles) {
+    default Set<Role> mapUserRolesToRoles(Set<UserRoleEntity> userRoles) {
         if (userRoles == null) {
             return new HashSet<>();
         }
         return userRoles.stream()
-                .map(userRolEntity -> toRole(userRolEntity.getRole()))
+                .map(userRoleEntity -> toRole(userRoleEntity.getRole()))
                 .collect(Collectors.toSet());
     }
 

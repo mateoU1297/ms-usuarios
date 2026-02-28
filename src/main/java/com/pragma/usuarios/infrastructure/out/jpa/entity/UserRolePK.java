@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Embeddable
-public class UserRolPK {
+public class UserRolePK {
 
     @Column(name = "user_id")
     private Long userId;

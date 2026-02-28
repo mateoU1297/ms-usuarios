@@ -4,6 +4,7 @@ import com.pragma.usuarios.domain.model.enums.RoleName;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Set;
 
 public class User {
@@ -34,6 +35,11 @@ public class User {
         this.password = password;
         this.active = true;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public boolean isAdult() {
+        if (birthDate == null) return false;
+        return Period.between(birthDate, LocalDate.now()).getYears() >= 18;
     }
 
     public boolean hasRole(RoleName roleName) {

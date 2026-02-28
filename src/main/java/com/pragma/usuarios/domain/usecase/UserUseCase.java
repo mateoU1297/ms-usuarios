@@ -16,4 +16,9 @@ public class UserUseCase implements IUserServicePort {
     public User findByEmail(String email) {
         return userPersistencePort.findByEmail(email);
     }
+
+    @Override
+    public User save(User user) {
+        return userPersistencePort.save(user);
+    }
 }

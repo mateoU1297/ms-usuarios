@@ -47,7 +47,7 @@ public class RolEntity {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "role")
-    private Set<UserRolEntity> userRoles = new HashSet<>();
+    private Set<UserRoleEntity> userRoles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

@@ -38,7 +38,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email)
+        return email -> userRepository.findByEmailWithRoles(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
@@ -71,10 +71,10 @@ public class SecurityConfig {
                                 "/actuator/health"
                         ).permitAll()
 
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/owners/**").hasRole("OWNER")
-                        .requestMatchers("/api/v1/employees/**").hasAnyRole("OWNER", "EMPLOYEE")
-                        .requestMatchers("/api/v1/clients/**").hasRole("CLIENT")
+                        .requestMatchers("admin/**").hasRole("ADMIN")
+                        .requestMatchers("owners/**").hasRole("OWNER")
+                        .requestMatchers("employees/**").hasAnyRole("OWNER", "EMPLOYEE")
+                        .requestMatchers("clients/**").hasRole("CLIENT")
 
                         .anyRequest().authenticated()
                 )

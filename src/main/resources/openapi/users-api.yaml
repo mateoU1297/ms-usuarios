@@ -45,4 +45,48 @@ paths:
             application/json:
               schema:
                 $ref: '../openapi/schemas/schemas-common.yaml#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-common.yaml#/components/schemas/ErrorResponse'
       security: []
+
+  /admin/owner:
+    post:
+      summary: Create a new owner
+      operationId: createOwner
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi/schemas/schemas-owner.yaml#/components/schemas/OwnerRequest'
+      responses:
+        '201':
+          description: Owner created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-owner.yaml#/components/schemas/OwnerResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-common.yaml#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-common.yaml#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - email or document already exists
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-common.yaml#/components/schemas/ErrorResponse'

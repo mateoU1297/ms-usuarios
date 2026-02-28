@@ -20,10 +20,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserRolEntity {
+public class UserRoleEntity {
 
     @EmbeddedId
-    private UserRolPK id;
+    private UserRolePK id;
 
     @ManyToOne
     @MapsId("userId")

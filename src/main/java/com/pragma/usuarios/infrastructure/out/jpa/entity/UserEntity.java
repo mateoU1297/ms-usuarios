@@ -11,6 +11,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,38 +44,56 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 100)
+    @NotBlank
+    @Size(min = 2, max = 50)
+    @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
+    @NotBlank
+    @Size(min = 2, max = 50)
+    @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
+    @NotBlank
+    @Size(min = 5, max = 20)
     @Column(name = "document_id", nullable = false, unique = true, length = 20)
     private String documentId;
 
+    @NotBlank
+    @Size(min = 5, max = 20)
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
+    @NotNull
+    @Past
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
+    @NotBlank
+    @Email
+    @Size(max = 150)
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @NotBlank
+    @Size(min = 8)
+    @Column(nullable = false)
     private String password;
 
+    @NotNull
     @Column(nullable = false)
     private Boolean active = true;
 
+    @PastOrPresent
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @PastOrPresent
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<UserRolEntity> userRoles = new HashSet<>();
+    private Set<UserRoleEntity> userRoles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -85,7 +109,7 @@ public class UserEntity implements UserDetails {
     public Set<RolEntity> getRoles() {
         if (userRoles == null) return new HashSet<>();
         return userRoles.stream()
-                .map(UserRolEntity::getRole)
+                .map(UserRoleEntity::getRole)
                 .collect(Collectors.toSet());
     }
 

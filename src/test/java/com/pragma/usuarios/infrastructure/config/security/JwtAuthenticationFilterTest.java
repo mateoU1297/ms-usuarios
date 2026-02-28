@@ -71,7 +71,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(AUTHORIZATION_HEADER);
         when(jwtUtils.validateJwtToken(VALID_TOKEN)).thenReturn(true);
         when(jwtUtils.getEmailFromJwtToken(VALID_TOKEN)).thenReturn(EMAIL);
-        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(userEntity));
+        when(userRepository.findByEmailWithRoles(EMAIL)).thenReturn(Optional.of(userEntity));
 
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
@@ -82,7 +82,7 @@ class JwtAuthenticationFilterTest {
         verify(filterChain, times(1)).doFilter(request, response);
         verify(jwtUtils, times(1)).validateJwtToken(VALID_TOKEN);
         verify(jwtUtils, times(1)).getEmailFromJwtToken(VALID_TOKEN);
-        verify(userRepository, times(1)).findByEmail(EMAIL);
+        verify(userRepository, times(1)).findByEmailWithRoles(EMAIL);
     }
 
     @Test
@@ -94,7 +94,7 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtUtils, never()).validateJwtToken(anyString());
         verify(jwtUtils, never()).getEmailFromJwtToken(anyString());
-        verify(userRepository, never()).findByEmail(anyString());
+        verify(userRepository, never()).findByEmailWithRoles(anyString());
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -130,7 +130,7 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtUtils, times(1)).validateJwtToken(INVALID_TOKEN);
         verify(jwtUtils, never()).getEmailFromJwtToken(anyString());
-        verify(userRepository, never()).findByEmail(anyString());
+        verify(userRepository, never()).findByEmailWithRoles(anyString());
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -144,7 +144,7 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtUtils, times(1)).validateJwtToken(VALID_TOKEN);
         verify(jwtUtils, never()).getEmailFromJwtToken(anyString());
-        verify(userRepository, never()).findByEmail(anyString());
+        verify(userRepository, never()).findByEmailWithRoles(anyString());
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -153,14 +153,14 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(AUTHORIZATION_HEADER);
         when(jwtUtils.validateJwtToken(VALID_TOKEN)).thenReturn(true);
         when(jwtUtils.getEmailFromJwtToken(VALID_TOKEN)).thenReturn(EMAIL);
-        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(userRepository.findByEmailWithRoles(EMAIL)).thenReturn(Optional.empty());
 
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtUtils, times(1)).validateJwtToken(VALID_TOKEN);
         verify(jwtUtils, times(1)).getEmailFromJwtToken(VALID_TOKEN);
-        verify(userRepository, times(1)).findByEmail(EMAIL);
+        verify(userRepository, times(1)).findByEmailWithRoles(EMAIL);
         verify(filterChain, times(1)).doFilter(request, response);
     }
 
@@ -175,7 +175,7 @@ class JwtAuthenticationFilterTest {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtUtils, times(1)).validateJwtToken(VALID_TOKEN);
         verify(jwtUtils, times(1)).getEmailFromJwtToken(VALID_TOKEN);
-        verify(userRepository, never()).findByEmail(anyString());
+        verify(userRepository, never()).findByEmailWithRoles(anyString());
         verify(filterChain, times(1)).doFilter(request, response);
     }
 

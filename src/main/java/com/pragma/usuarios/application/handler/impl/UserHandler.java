@@ -2,8 +2,11 @@ package com.pragma.usuarios.application.handler.impl;
 
 import com.pragma.usuarios.application.dto.JwtResponse;
 import com.pragma.usuarios.application.dto.LoginRequest;
+import com.pragma.usuarios.application.dto.OwnerRequest;
+import com.pragma.usuarios.application.dto.OwnerResponse;
 import com.pragma.usuarios.application.handler.IUserHandler;
 import com.pragma.usuarios.application.mapper.IJwtResponseMapper;
+import com.pragma.usuarios.application.mapper.IOwnerResponseMapper;
 import com.pragma.usuarios.domain.api.IAuthenticationServicePort;
 import com.pragma.usuarios.domain.api.IJwtServicePort;
 import com.pragma.usuarios.domain.api.IUserServicePort;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserHandler implements IUserHandler {
 
     private final IJwtResponseMapper jwtResponseMapper;
+    private final IOwnerResponseMapper ownerResponseMapper;
 
     private final IJwtServicePort jwtServicePort;
     private final IUserServicePort userServicePort;
@@ -34,6 +38,11 @@ public class UserHandler implements IUserHandler {
         response.setToken(jwtServicePort.generateToken(user));
 
         return response;
+    }
+
+    public OwnerResponse createOwner(OwnerRequest ownerRequest) {
+        User entity = ownerResponseMapper.toModel(ownerRequest);
+        return ownerResponseMapper.toResponse(userServicePort.save(entity));
     }
 
 }
