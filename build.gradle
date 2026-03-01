@@ -9,9 +9,9 @@ openApiGenerate {
 	generatorName = "spring"
 	inputSpec = "$rootDir/src/main/resources/openapi/users-api.yaml"
 	outputDir = "$buildDir/generated"
-	apiPackage = "com.pragma.usuarios.infrastructure.adapter.in.rest.api"
-	modelPackage = "com.pragma.usuarios.application.dto"
-	invokerPackage = "com.pragma.usuarios.infrastructure"
+	apiPackage = "com.pragma.users.infrastructure.adapter.in.rest.api"
+	modelPackage = "com.pragma.users.application.dto"
+	invokerPackage = "com.pragma.users.infrastructure"
 
 	configOptions = [
 			dateLibrary: "java17",

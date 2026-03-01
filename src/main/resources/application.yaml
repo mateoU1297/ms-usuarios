@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: ms-usuarios
+    name: ms-users
   datasource:
     url: jdbc:postgresql://localhost:5432/usuarios_db
     username: usuario_db
