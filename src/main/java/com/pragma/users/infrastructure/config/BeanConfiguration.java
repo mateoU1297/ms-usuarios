@@ -1,9 +1,6 @@
 package com.pragma.users.infrastructure.config;
 
 import com.pragma.users.domain.api.IAuthenticationServicePort;
-import com.pragma.users.domain.api.IJwtServicePort;
-import com.pragma.users.domain.api.IRoleServicePort;
-import com.pragma.users.domain.api.IUserRoleServicePort;
 import com.pragma.users.domain.api.IUserServicePort;
 import com.pragma.users.domain.spi.IAuthenticationPort;
 import com.pragma.users.domain.spi.IJwtPort;
@@ -11,9 +8,6 @@ import com.pragma.users.domain.spi.IRolePersistencePort;
 import com.pragma.users.domain.spi.IUserPersistencePort;
 import com.pragma.users.domain.spi.IUserRolePersistencePort;
 import com.pragma.users.domain.usecase.AuthenticationUseCase;
-import com.pragma.users.domain.usecase.JwtUseCase;
-import com.pragma.users.domain.usecase.RoleUseCase;
-import com.pragma.users.domain.usecase.UserRoleUseCase;
 import com.pragma.users.domain.usecase.UserUseCase;
 import com.pragma.users.infrastructure.config.security.JwtUtils;
 import com.pragma.users.infrastructure.config.security.adapter.AuthenticationAdapter;
@@ -57,7 +51,7 @@ public class BeanConfiguration {
 
     @Bean
     public IUserServicePort userServicePort() {
-        return new UserUseCase(userPersistencePort(), authenticationPort());
+        return new UserUseCase(userPersistencePort(), authenticationPort(), rolePersistencePort(), userRolePersistencePort());
     }
 
     @Bean
@@ -67,7 +61,7 @@ public class BeanConfiguration {
 
     @Bean
     public IAuthenticationServicePort authenticationServicePort() {
-        return new AuthenticationUseCase(authenticationPort());
+        return new AuthenticationUseCase(authenticationPort(), userPersistencePort(), jwtPort());
     }
 
     @Bean
@@ -76,28 +70,13 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public IJwtServicePort jwtServicePort() {
-        return new JwtUseCase(jwtPort());
-    }
-
-    @Bean
     public IUserRolePersistencePort userRolePersistencePort() {
         return new UserRoleJpaAdapter(userRoleRepository, userRepository, roleRepository, userRoleEntityMapper);
     }
 
     @Bean
-    public IUserRoleServicePort userRoleServicePort() {
-        return new UserRoleUseCase(userRolePersistencePort());
-    }
-
-    @Bean
     public IRolePersistencePort rolePersistencePort() {
         return new RoleJpaAdapter(roleRepository, roleEntityMapper);
-    }
-
-    @Bean
-    public IRoleServicePort roleServicePort() {
-        return  new RoleUseCase(rolePersistencePort());
     }
 
 }

@@ -1,8 +1,8 @@
 package com.pragma.users.domain.api;
 
+import com.pragma.users.domain.model.AuthResult;
+
 public interface IAuthenticationServicePort {
 
-    void authenticate(String email, String password);
-
-    String encode(String rawPassword);
+    AuthResult authenticate(String email, String password);
 }
