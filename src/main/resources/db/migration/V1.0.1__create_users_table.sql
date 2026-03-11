@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(50) NOT NULL,
     document_id VARCHAR(20) NOT NULL UNIQUE,
     phone_number VARCHAR(20) NOT NULL UNIQUE,
-    birth_date DATE NOT NULL,
+    birth_date DATE,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     active BOOLEAN DEFAULT TRUE,

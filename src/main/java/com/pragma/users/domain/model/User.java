@@ -20,13 +20,14 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Set<Role> roles;
+    private Long restaurantId;
 
     public User() {
     }
 
     public User(String firstName, String lastName, String documentId,
                 String phoneNumber, LocalDate birthDate, String email,
-                String password) {
+                String password, Long restaurantId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.documentId = documentId;
@@ -36,6 +37,7 @@ public class User {
         this.password = password;
         this.active = true;
         this.createdAt = LocalDateTime.now();
+        this.restaurantId = restaurantId;
     }
 
     public boolean isAdult() {
@@ -142,5 +144,13 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Long getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(Long restaurantId) {
+        this.restaurantId = restaurantId;
     }
 }

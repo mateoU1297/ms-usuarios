@@ -1,16 +1,18 @@
 package com.pragma.users.infrastructure.input.rest;
 
+import com.pragma.users.application.dto.EmployeeRequest;
+import com.pragma.users.application.dto.EmployeeResponse;
 import com.pragma.users.application.dto.OwnerRequest;
 import com.pragma.users.application.dto.OwnerResponse;
 import com.pragma.users.application.handler.IUserHandler;
-import com.pragma.users.infrastructure.adapter.in.rest.api.AdminApi;
+import com.pragma.users.infrastructure.adapter.in.rest.api.UserApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminController implements AdminApi {
+public class UserController implements UserApi {
 
     private final IUserHandler userHandler;
 
@@ -23,6 +25,12 @@ public class AdminController implements AdminApi {
     @Override
     public ResponseEntity<OwnerResponse> getUserById(Long userId) {
         OwnerResponse response = userHandler.getUserById(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<EmployeeResponse> createEmployee(EmployeeRequest employeeRequest) {
+        EmployeeResponse response = userHandler.createEmployee(employeeRequest);
         return ResponseEntity.ok(response);
     }
 

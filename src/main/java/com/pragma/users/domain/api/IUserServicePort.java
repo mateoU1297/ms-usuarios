@@ -10,4 +10,6 @@ public interface IUserServicePort {
     User save(User user, RoleName roleName);
 
     User findById(Long id);
+
+    User saveEmployee(User user);
 }

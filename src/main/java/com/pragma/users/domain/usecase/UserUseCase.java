@@ -7,6 +7,7 @@ import com.pragma.users.domain.model.User;
 import com.pragma.users.domain.model.UserRole;
 import com.pragma.users.domain.model.enums.RoleName;
 import com.pragma.users.domain.spi.IAuthenticationPort;
+import com.pragma.users.domain.spi.IRestaurantPersistencePort;
 import com.pragma.users.domain.spi.IRolePersistencePort;
 import com.pragma.users.domain.spi.IUserPersistencePort;
 import com.pragma.users.domain.spi.IUserRolePersistencePort;
@@ -19,13 +20,16 @@ public class UserUseCase implements IUserServicePort {
     private final IAuthenticationPort authenticationPort;
     private final IRolePersistencePort rolePersistencePort;
     private final IUserRolePersistencePort userRolePersistencePort;
+    private final IRestaurantPersistencePort restaurantPersistencePort;
 
     public UserUseCase(IUserPersistencePort userPersistencePort, IAuthenticationPort authenticationPort,
-                       IRolePersistencePort rolePersistencePort, IUserRolePersistencePort userRolePersistencePort) {
+                       IRolePersistencePort rolePersistencePort, IUserRolePersistencePort userRolePersistencePort,
+                       IRestaurantPersistencePort restaurantPersistencePort) {
         this.userPersistencePort = userPersistencePort;
         this.authenticationPort = authenticationPort;
         this.rolePersistencePort = rolePersistencePort;
         this.userRolePersistencePort = userRolePersistencePort;
+        this.restaurantPersistencePort = restaurantPersistencePort;
     }
 
     @Override
@@ -35,7 +39,21 @@ public class UserUseCase implements IUserServicePort {
 
     @Override
     public User save(User user, RoleName roleName) {
-        if (!user.isAdult())
+        return saveWithRole(user, roleName);
+    }
+
+    @Override
+    public User findById(Long id) {
+        return userPersistencePort.findById(id);
+    }
+
+    @Override
+    public User saveEmployee(User user) {
+        return saveWithRole(user, RoleName.EMPLOYEE);
+    }
+
+    private User saveWithRole(User user, RoleName roleName) {
+        if (roleName == RoleName.OWNER && !user.isAdult())
             throw new UserUnderageException();
 
         user.setPassword(authenticationPort.encode(user.getPassword()));
@@ -49,11 +67,10 @@ public class UserUseCase implements IUserServicePort {
         userRolePersistencePort.save(userRole);
 
         savedUser.setRoles(Set.of(role));
-        return savedUser;
-    }
 
-    @Override
-    public User findById(Long id) {
-        return userPersistencePort.findById(id);
+        if (user.getRestaurantId() != null)
+            restaurantPersistencePort.saveEmployeeInRestaurant(savedUser.getId(), user.getRestaurantId());
+
+        return savedUser;
     }
 }

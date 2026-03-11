@@ -13,7 +13,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
@@ -64,7 +63,6 @@ public class UserEntity implements UserDetails {
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
-    @NotNull
     @Past
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
@@ -80,7 +78,6 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @NotNull
     @Column(nullable = false)
     private Boolean active = true;
 
@@ -99,6 +96,7 @@ public class UserEntity implements UserDetails {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        active = true;
     }
 
     @PreUpdate

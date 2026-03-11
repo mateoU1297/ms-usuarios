@@ -6,6 +6,7 @@ import com.pragma.users.domain.model.User;
 import com.pragma.users.domain.model.UserRole;
 import com.pragma.users.domain.model.enums.RoleName;
 import com.pragma.users.domain.spi.IAuthenticationPort;
+import com.pragma.users.domain.spi.IRestaurantPersistencePort;
 import com.pragma.users.domain.spi.IRolePersistencePort;
 import com.pragma.users.domain.spi.IUserPersistencePort;
 import com.pragma.users.domain.spi.IUserRolePersistencePort;
@@ -19,12 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -40,13 +39,17 @@ class UserUseCaseTest {
     private IRolePersistencePort rolePersistencePort;
     @Mock
     private IUserRolePersistencePort userRolePersistencePort;
+    @Mock
+    private IRestaurantPersistencePort restaurantPersistencePort;
 
     @InjectMocks
     private UserUseCase userUseCase;
 
     private User adultUser;
     private User minorUser;
+    private User adultEmployeeUser;
     private Role ownerRole;
+    private Role employeeRole;
 
     @BeforeEach
     void setUp() {
@@ -61,32 +64,40 @@ class UserUseCaseTest {
         minorUser.setPassword("plainPassword");
         minorUser.setBirthDate(LocalDate.now().minusYears(16));
 
+        adultEmployeeUser = new User();
+        adultEmployeeUser.setId(2L);
+        adultEmployeeUser.setEmail("employee@mail.com");
+        adultEmployeeUser.setPassword("plainPassword");
+        adultEmployeeUser.setBirthDate(LocalDate.now().minusYears(25));
+        adultEmployeeUser.setRestaurantId(1L);
+
         ownerRole = new Role();
         ownerRole.setId(1L);
         ownerRole.setName(RoleName.OWNER);
+
+        employeeRole = new Role();
+        employeeRole.setId(2L);
+        employeeRole.setName(RoleName.EMPLOYEE);
     }
 
     @Test
     void save_whenUserIsAdult_shouldEncodePasswordAndAssignRole() {
         when(authenticationPort.encode("plainPassword")).thenReturn("encodedPassword");
-        when(userPersistencePort.save(any(User.class))).thenReturn(adultUser);
+        when(userPersistencePort.save(any())).thenReturn(adultUser);
         when(rolePersistencePort.getRoleByName(RoleName.OWNER)).thenReturn(ownerRole);
-        when(userRolePersistencePort.save(any(UserRole.class))).thenReturn(new UserRole());
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
 
         User result = userUseCase.save(adultUser, RoleName.OWNER);
 
         verify(authenticationPort).encode("plainPassword");
         verify(userPersistencePort).save(adultUser);
-
         verify(rolePersistencePort).getRoleByName(RoleName.OWNER);
         verify(userRolePersistencePort).save(any(UserRole.class));
-
-        assertNotNull(result);
         assertTrue(result.getRoles().contains(ownerRole));
     }
 
     @Test
-    void save_whenUserIsAdult_shouldPersistUserRoleWithCorrectIds() {
+    void save_whenUserIsAdult_shouldNotCallRestaurantPort() {
         when(authenticationPort.encode(any())).thenReturn("encodedPassword");
         when(userPersistencePort.save(any())).thenReturn(adultUser);
         when(rolePersistencePort.getRoleByName(RoleName.OWNER)).thenReturn(ownerRole);
@@ -94,10 +105,7 @@ class UserUseCaseTest {
 
         userUseCase.save(adultUser, RoleName.OWNER);
 
-        verify(userRolePersistencePort).save(argThat(userRole ->
-                userRole.getUserId().equals(1L) &&
-                        userRole.getRoleId().equals(1L)
-        ));
+        verifyNoInteractions(restaurantPersistencePort);
     }
 
     @Test
@@ -109,14 +117,61 @@ class UserUseCaseTest {
         verifyNoInteractions(authenticationPort);
         verifyNoInteractions(rolePersistencePort);
         verifyNoInteractions(userRolePersistencePort);
+        verifyNoInteractions(restaurantPersistencePort);
     }
 
     @Test
-    void save_whenUserIsMinor_shouldNotEncodePassword() {
-        assertThrows(UserUnderageException.class,
-                () -> userUseCase.save(minorUser, RoleName.OWNER));
+    void saveEmployee_whenUserIsAdult_shouldAssignEmployeeRole() {
+        when(authenticationPort.encode("plainPassword")).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultEmployeeUser);
+        when(rolePersistencePort.getRoleByName(RoleName.EMPLOYEE)).thenReturn(employeeRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
 
-        verify(authenticationPort, never()).encode(any());
+        User result = userUseCase.saveEmployee(adultEmployeeUser);
+
+        verify(rolePersistencePort).getRoleByName(RoleName.EMPLOYEE);
+        assertTrue(result.getRoles().contains(employeeRole));
+    }
+
+    @Test
+    void saveEmployee_whenRestaurantIdPresent_shouldCallRestaurantPort() {
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultEmployeeUser);
+        when(rolePersistencePort.getRoleByName(RoleName.EMPLOYEE)).thenReturn(employeeRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        userUseCase.saveEmployee(adultEmployeeUser);
+
+        verify(restaurantPersistencePort).saveEmployeeInRestaurant(2L, 1L);
+    }
+
+    @Test
+    void saveEmployee_whenRestaurantIdNull_shouldNotCallRestaurantPort() {
+        adultEmployeeUser.setRestaurantId(null);
+
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultEmployeeUser);
+        when(rolePersistencePort.getRoleByName(RoleName.EMPLOYEE)).thenReturn(employeeRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        userUseCase.saveEmployee(adultEmployeeUser);
+
+        verifyNoInteractions(restaurantPersistencePort);
+    }
+
+    @Test
+    void saveEmployee_shouldPersistUserRoleWithCorrectIds() {
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultEmployeeUser);
+        when(rolePersistencePort.getRoleByName(RoleName.EMPLOYEE)).thenReturn(employeeRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        userUseCase.saveEmployee(adultEmployeeUser);
+
+        verify(userRolePersistencePort).save(argThat(userRole ->
+                userRole.getUserId().equals(2L) &&
+                        userRole.getRoleId().equals(2L)
+        ));
     }
 
     @Test

@@ -26,13 +26,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AdminControllerTest {
+class UserControllerTest {
 
     @Mock
     private IUserHandler userHandler;
 
     @InjectMocks
-    private AdminController adminController;
+    private UserController userController;
 
     private OwnerRequest ownerRequest;
     private OwnerResponse ownerResponse;
@@ -62,7 +62,7 @@ class AdminControllerTest {
     void createOwner_WithValidRequest_ShouldReturnOkWithResponse() {
         when(userHandler.createOwner(any(OwnerRequest.class))).thenReturn(ownerResponse);
 
-        ResponseEntity<OwnerResponse> response = adminController.createOwner(ownerRequest);
+        ResponseEntity<OwnerResponse> response = userController.createOwner(ownerRequest);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -82,7 +82,7 @@ class AdminControllerTest {
     void createOwner_WhenHandlerReturnsResponse_ShouldReturnSameResponse() {
         when(userHandler.createOwner(any(OwnerRequest.class))).thenReturn(ownerResponse);
 
-        ResponseEntity<OwnerResponse> response = adminController.createOwner(ownerRequest);
+        ResponseEntity<OwnerResponse> response = userController.createOwner(ownerRequest);
 
         assertNotNull(response.getBody());
         assertEquals(ownerResponse.getId(), response.getBody().getId());
@@ -99,7 +99,7 @@ class AdminControllerTest {
                 .thenThrow(new RuntimeException(errorMessage));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> adminController.createOwner(ownerRequest));
+                () -> userController.createOwner(ownerRequest));
 
         assertEquals(errorMessage, exception.getMessage());
         verify(userHandler, times(1)).createOwner(ownerRequest);
@@ -110,7 +110,7 @@ class AdminControllerTest {
         when(userHandler.createOwner(null)).thenThrow(new NullPointerException());
 
         assertThrows(NullPointerException.class,
-                () -> adminController.createOwner(null));
+                () -> userController.createOwner(null));
 
         verify(userHandler, times(1)).createOwner(null);
     }

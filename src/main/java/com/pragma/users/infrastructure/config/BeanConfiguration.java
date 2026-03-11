@@ -4,6 +4,7 @@ import com.pragma.users.domain.api.IAuthenticationServicePort;
 import com.pragma.users.domain.api.IUserServicePort;
 import com.pragma.users.domain.spi.IAuthenticationPort;
 import com.pragma.users.domain.spi.IJwtPort;
+import com.pragma.users.domain.spi.IRestaurantPersistencePort;
 import com.pragma.users.domain.spi.IRolePersistencePort;
 import com.pragma.users.domain.spi.IUserPersistencePort;
 import com.pragma.users.domain.spi.IUserRolePersistencePort;
@@ -15,12 +16,15 @@ import com.pragma.users.infrastructure.config.security.adapter.JwtAdapter;
 import com.pragma.users.infrastructure.mapper.IRoleEntityMapper;
 import com.pragma.users.infrastructure.mapper.IUserEntityMapper;
 import com.pragma.users.infrastructure.mapper.IUserRoleEntityMapper;
+import com.pragma.users.infrastructure.out.feign.adapter.RestaurantFeignAdapter;
+import com.pragma.users.infrastructure.out.feign.client.IRestaurantFeignClient;
 import com.pragma.users.infrastructure.out.jpa.adapter.RoleJpaAdapter;
 import com.pragma.users.infrastructure.out.jpa.adapter.UserJpaAdapter;
 import com.pragma.users.infrastructure.out.jpa.adapter.UserRoleJpaAdapter;
 import com.pragma.users.infrastructure.repository.RoleRepository;
 import com.pragma.users.infrastructure.repository.UserRepository;
 import com.pragma.users.infrastructure.repository.UserRoleRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +44,9 @@ public class BeanConfiguration {
     private final RoleRepository roleRepository;
     private final IRoleEntityMapper roleEntityMapper;
 
+    private final IRestaurantFeignClient restaurantFeignClient;
+    private final HttpServletRequest httpServletRequest;
+
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -51,7 +58,8 @@ public class BeanConfiguration {
 
     @Bean
     public IUserServicePort userServicePort() {
-        return new UserUseCase(userPersistencePort(), authenticationPort(), rolePersistencePort(), userRolePersistencePort());
+        return new UserUseCase(userPersistencePort(), authenticationPort(), rolePersistencePort(),
+                userRolePersistencePort(), restaurantPersistencePort());
     }
 
     @Bean
@@ -79,4 +87,8 @@ public class BeanConfiguration {
         return new RoleJpaAdapter(roleRepository, roleEntityMapper);
     }
 
+    @Bean
+    public IRestaurantPersistencePort restaurantPersistencePort() {
+        return new RestaurantFeignAdapter(restaurantFeignClient, httpServletRequest);
+    }
 }
