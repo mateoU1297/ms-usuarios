@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,6 +51,7 @@ class UserUseCaseTest {
     private User adultEmployeeUser;
     private Role ownerRole;
     private Role employeeRole;
+    private Role clientRole;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +80,10 @@ class UserUseCaseTest {
         employeeRole = new Role();
         employeeRole.setId(2L);
         employeeRole.setName(RoleName.EMPLOYEE);
+
+        clientRole = new Role();
+        clientRole.setId(3L);
+        clientRole.setName(RoleName.CLIENT);
     }
 
     @Test
@@ -87,7 +93,7 @@ class UserUseCaseTest {
         when(rolePersistencePort.getRoleByName(RoleName.OWNER)).thenReturn(ownerRole);
         when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
 
-        User result = userUseCase.save(adultUser, RoleName.OWNER);
+        User result = userUseCase.saveOwner(adultUser);
 
         verify(authenticationPort).encode("plainPassword");
         verify(userPersistencePort).save(adultUser);
@@ -103,7 +109,7 @@ class UserUseCaseTest {
         when(rolePersistencePort.getRoleByName(RoleName.OWNER)).thenReturn(ownerRole);
         when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
 
-        userUseCase.save(adultUser, RoleName.OWNER);
+        userUseCase.saveOwner(adultUser);
 
         verifyNoInteractions(restaurantPersistencePort);
     }
@@ -111,7 +117,7 @@ class UserUseCaseTest {
     @Test
     void save_whenUserIsMinor_shouldThrowUserUnderageException() {
         assertThrows(UserUnderageException.class,
-                () -> userUseCase.save(minorUser, RoleName.OWNER));
+                () -> userUseCase.saveOwner(minorUser));
 
         verifyNoInteractions(userPersistencePort);
         verifyNoInteractions(authenticationPort);
@@ -192,5 +198,55 @@ class UserUseCaseTest {
 
         assertEquals(adultUser, result);
         verify(userPersistencePort).findById(1L);
+    }
+
+    @Test
+    void saveClient_whenUserIsAdult_shouldAssignClientRole() {
+        when(authenticationPort.encode("plainPassword")).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultUser);
+        when(rolePersistencePort.getRoleByName(RoleName.CLIENT)).thenReturn(clientRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        User result = userUseCase.saveClient(adultUser);
+
+        verify(rolePersistencePort).getRoleByName(RoleName.CLIENT);
+        assertTrue(result.getRoles().contains(clientRole));
+    }
+
+    @Test
+    void saveClient_whenUserIsMinor_shouldNotThrowException() {
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultUser);
+        when(rolePersistencePort.getRoleByName(RoleName.CLIENT)).thenReturn(clientRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        assertDoesNotThrow(() -> userUseCase.saveClient(minorUser));
+    }
+
+    @Test
+    void saveClient_shouldNotCallRestaurantPort() {
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultUser);
+        when(rolePersistencePort.getRoleByName(RoleName.CLIENT)).thenReturn(clientRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        userUseCase.saveClient(adultUser);
+
+        verifyNoInteractions(restaurantPersistencePort);
+    }
+
+    @Test
+    void saveClient_shouldPersistUserRoleWithCorrectIds() {
+        when(authenticationPort.encode(any())).thenReturn("encodedPassword");
+        when(userPersistencePort.save(any())).thenReturn(adultUser);
+        when(rolePersistencePort.getRoleByName(RoleName.CLIENT)).thenReturn(clientRole);
+        when(userRolePersistencePort.save(any())).thenReturn(new UserRole());
+
+        userUseCase.saveClient(adultUser);
+
+        verify(userRolePersistencePort).save(argThat(userRole ->
+                userRole.getUserId().equals(1L) &&
+                        userRole.getRoleId().equals(3L)
+        ));
     }
 }

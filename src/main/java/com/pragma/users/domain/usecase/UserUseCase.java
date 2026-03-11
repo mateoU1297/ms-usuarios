@@ -38,18 +38,23 @@ public class UserUseCase implements IUserServicePort {
     }
 
     @Override
-    public User save(User user, RoleName roleName) {
-        return saveWithRole(user, roleName);
-    }
-
-    @Override
     public User findById(Long id) {
         return userPersistencePort.findById(id);
     }
 
     @Override
+    public User saveOwner(User user) {
+        return saveWithRole(user, RoleName.OWNER);
+    }
+
+    @Override
     public User saveEmployee(User user) {
         return saveWithRole(user, RoleName.EMPLOYEE);
+    }
+
+    @Override
+    public User saveClient(User user) {
+        return saveWithRole(user, RoleName.CLIENT);
     }
 
     private User saveWithRole(User user, RoleName roleName) {

@@ -14,7 +14,7 @@ servers:
 tags:
   - name: Authentication
     description: Authentication endpoints
-  - name: User
+  - name: Users
     description: User operations
 
 paths:
@@ -55,7 +55,7 @@ paths:
       summary: Create a new owner
       operationId: createOwner
       tags:
-        - User
+        - Users
       security:
         - bearerAuth: [ ]
       requestBody:
@@ -101,7 +101,7 @@ paths:
       summary: Get user by Id
       operationId: getUserById
       tags:
-        - User
+        - Users
       security:
         - bearerAuth: [ ]
       parameters:
@@ -155,7 +155,7 @@ paths:
       summary: Create employee account
       operationId: createEmployee
       tags:
-        - User
+        - Users
       security:
         - bearerAuth: [ ]
       requestBody:
@@ -179,6 +179,38 @@ paths:
                 $ref: '../openapi/schemas/schemas-error.yaml#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden - User is not an owner
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-error.yaml#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Email or document already exists
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-error.yaml#/components/schemas/ErrorResponse'
+
+  /clients/register:
+    post:
+      summary: Create client account
+      operationId: createClient
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi/schemas/schemas-user.yaml#/components/schemas/ClientRequest'
+      responses:
+        '200':
+          description: Client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi/schemas/schemas-user.yaml#/components/schemas/ClientResponse'
+        '400':
+          description: Invalid input data
           content:
             application/json:
               schema:

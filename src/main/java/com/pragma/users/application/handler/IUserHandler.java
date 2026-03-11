@@ -1,5 +1,7 @@
 package com.pragma.users.application.handler;
 
+import com.pragma.users.application.dto.ClientRequest;
+import com.pragma.users.application.dto.ClientResponse;
 import com.pragma.users.application.dto.EmployeeRequest;
 import com.pragma.users.application.dto.EmployeeResponse;
 import com.pragma.users.application.dto.JwtResponse;
@@ -11,9 +13,11 @@ public interface IUserHandler {
 
     JwtResponse authenticate(LoginRequest loginRequest);
 
-    OwnerResponse createOwner(OwnerRequest ownerRequest);
-
     OwnerResponse getUserById(Long userId);
 
+    OwnerResponse createOwner(OwnerRequest ownerRequest);
+
     EmployeeResponse createEmployee(EmployeeRequest employeeRequest);
+
+    ClientResponse createClient(ClientRequest clientRequest);
 }

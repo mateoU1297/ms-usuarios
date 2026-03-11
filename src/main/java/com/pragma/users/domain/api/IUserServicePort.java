@@ -7,9 +7,11 @@ public interface IUserServicePort {
 
     User findByEmail(String email);
 
-    User save(User user, RoleName roleName);
+    User saveOwner(User user);
 
     User findById(Long id);
 
     User saveEmployee(User user);
+
+    User saveClient(User user);
 }
